@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="design.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <script>
+	function goBack() {
+	window.history.back();
+	}
+</script>
+</head>
+<body>
+    <button onClick = "goBack()"> < Go back </button></button>
+    <main class="page">
+    <div class="container" float="center">
+    <h1><strong><b>Admin Log In</b></strong></h1>
+    <form action="admin_action.php" method="post">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Log In" class="button">
+    </form>
+    </div>
+    </main>
+<footer>© 2025 Student Enrollment System</footer>
+    </body>
+</html>

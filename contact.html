@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contact — ASCOT BSIT Enrollment Portal</title>
+  <link rel="stylesheet" href="design2.css">
+  <style>
+    .container {
+  max-width: 1200px; /* Make sure this matches other pages */
+  margin: 28px auto;
+  padding: 0 18px;
+  width: 100%; /* Add this */
+}
+    /* Reset-ish */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root{
+      --brand:#0f1724;        /* dark navy */
+      --accent:#0ea5a4;       /* teal */
+      --muted:#6b7280;        /* gray */
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.6);
+      --border: rgba(15,23,36,0.04);
+      --shadow: rgba(12,18,30,0.06);
+    }
+    body {
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#f3f6f9 0%, #eef2f6 100%);
+      color: #0b1220;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NAV */
+    header.site-header {
+      background: var(--brand);
+      color: white;
+      padding: 12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand img { height:42px; width:auto; border-radius:6px; }
+    .brand h1 { font-size:18px; letter-spacing:0.2px; margin:0; }
+    nav.primary { display:flex; gap:10px; align-items:center; }
+    nav.primary a {
+      color:white; text-decoration:none; padding:8px 12px; border-radius:8px; font-size:14px;
+      opacity:0.95;
+      transition: background-color 0.2s;
+    }
+    nav.primary a:hover { background: rgba(255,255,255,0.06); }
+    nav.primary a.active { background: rgba(255,255,255,0.06); }
+
+    /* Main layout */
+    main.container {
+      max-width:1200px;
+      margin:28px auto;
+      padding:0 18px;
+      flex: 1;
+    }
+.contact-hero {
+  background: linear-gradient(rgba(15,23,36,0.85), rgba(15,23,36,0.75)), url('ascot.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 14px;
+  padding: 50px 40px;
+  color: white;
+  margin-bottom: 40px;
+  box-shadow: 0 8px 24px var(--shadow);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+    .contact-hero .kicker {
+  background: linear-gradient(90deg,var(--accent), #38bdf8);
+  color:white;
+  padding:8px 16px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:0.2px;
+  box-shadow: 0 6px 18px rgba(14,165,164,0.2);
+  width:fit-content;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+    .contact-hero h2 {
+  font-size: 36px;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.contact-hero p {
+  font-size: 18px;
+  opacity: 0.9;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+
+    /* Contact Container */
+    .contact-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    /* Contact Form */
+    .contact-form {
+      background: white;
+      border-radius: 14px;
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .form-title {
+      color: var(--brand);
+      font-size: 22px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(14,165,164,0.1);
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--brand);
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-label.required:after {
+      content: " *";
+      color: #ef4444;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      background: white;
+      transition: all 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(14,165,164,0.1);
+    }
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    /* Contact Info */
+    .contact-info {
+      background: white;
+      border-radius: 14px;
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .info-title {
+      color: var(--brand);
+      font-size: 22px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(14,165,164,0.1);
+    }
+
+    /* Info Cards */
+    .info-items {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .info-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid rgba(14,165,164,0.1);
+    }
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(180deg,var(--accent), #22c1c3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .info-content h4 {
+      color: var(--brand);
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+    .info-content p {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Buttons */
+    .btn{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      text-decoration:none;
+      padding:12px 20px;
+      border-radius:10px;
+      font-weight:600;
+      font-size:14px;
+      border:1px solid rgba(15,23,36,0.06);
+      transition: all 0.2s;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn.primary { 
+      background:var(--brand); 
+      color:white; 
+      box-shadow: 0 8px 18px rgba(15,23,36,0.06); 
+    }
+    .btn.primary:hover {
+      background: #1a2436;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15,23,36,0.1);
+    }
+    .btn.outline { 
+      background:transparent; 
+      color:var(--brand); 
+      border:1px solid rgba(15,23,36,0.08); 
+    }
+    .btn.outline:hover {
+      background: rgba(15,23,36,0.02);
+    }
+
+    /* Map Section */
+    .map-section {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .map-section h3 {
+      color: var(--brand);
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+    .map-container {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .map-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Footer */
+    footer.site-footer {
+      margin-top:28px; 
+      padding:20px; 
+      background:var(--brand); 
+      color:white; 
+      border-radius:10px;
+      max-width:1200px; 
+      margin-left:auto; 
+      margin-right:auto; 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center;
+    }
+
+    /* Responsive */
+    @media (max-width:1000px){
+      .contact-container { grid-template-columns: 1fr; }
+      footer.site-footer { flex-direction:column; gap:12px; text-align:center; }
+    }
+    @media (max-width: 768px) {
+  .contact-hero {
+    padding: 40px 24px;
+    min-height: 280px;
+  }
+  
+  .contact-hero h2 {
+    font-size: 28px;
+  }
+  
+  .contact-hero p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-hero {
+    padding: 30px 20px;
+    min-height: 250px;
+  }
+  
+  .contact-hero h2 {
+    font-size: 24px;
+  }
+  
+  .contact-hero p {
+    font-size: 15px;
+  }
+}
+.site-footer {
+    margin-top: 28px;
+    padding: 20px;
+    background: var(--brand);
+    color: white;
+    border-radius: 10px;
+    /* REMOVE max-width: 1200px; */
+    width: 100%;
+    border-radius: 0; /* Remove rounded corners for full width */
+}
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="brand">
+      <img src="ascot3.png" alt="ASCOT logo" onerror="this.style.display='none'">
+      <div>
+        <h1 style="font-size:16px;">ASCOT — BSIT Enrollment Portal</h1>
+        <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:3px;">Aurora State College of Technology</div>
+      </div>
+    </div>
+
+    <nav class="primary" role="navigation" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="enrollment.php">Enroll</a>
+      <a href="about.html">Programs</a>
+      <a href="contact.html" class="active">Contact</a>
+      <a href="messages.html">Messages</a>
+      <a href="profile.php">My Profile</a>
+      <a href="logIn.html" class="active">Log Out</a>
+    </nav>
+  </header>
+
+  <main class="container" role="main">
+    <!-- Contact Hero -->
+    <section class="contact-hero" aria-label="Contact Introduction">
+      <h2>Contact ASCOT Admissions</h2>
+      <p>Have questions about the BSIT program or enrollment process? Our admissions team is here to help. Reach out to us through the form below or use our contact information.</p>
+    </section>
+
+    <div class="contact-container">
+      <!-- Contact Form -->
+      <div class="contact-form">
+        <h2 class="form-title">Send Us a Message</h2>
+        
+        <form action="" method="POST">
+          <div class="form-group">
+            <label class="form-label required">Full Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Enter your full name" required />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Email Address</label>
+            <input type="email" name="email" class="form-control" placeholder="example@email.com" required />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select name="subject" class="form-control">
+              <option value="">Select a subject</option>
+              <option value="enrollment">Enrollment Inquiry</option>
+              <option value="program">Program Information</option>
+              <option value="requirements">Admission Requirements</option>
+              <option value="technical">Technical Support</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Message</label>
+            <textarea name="message" class="form-control" placeholder="Please provide details about your inquiry..." required></textarea>
+          </div>
+          
+          <button type="submit" class="btn primary" style="width: 100%;">
+            <span>Send Message</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="contact-info">
+        <h2 class="info-title">Contact Information</h2>
+        
+        <div class="info-items">
+          <div class="info-item">
+            <div class="info-icon">📍</div>
+            <div class="info-content">
+              <h4>Main Campus Address</h4>
+              <p>Aurora State College of Technology<br>
+                 Baler, Aurora 3200<br>
+                 Philippines</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <div class="info-icon">📞</div>
+            <div class="info-content">
+              <h4>Phone Numbers</h4>
+              <p>Admissions Office: (042) 123-4567<br>
+                 Registrar: (042) 123-4568<br>
+                 IT Department: (042) 123-4569</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <div class="info-icon">✉️</div>
+            <div class="info-content">
+              <h4>Email Addresses</h4>
+              <p>Admissions: admissions@ascot.edu.ph<br>
+                 Registrar: registrar@ascot.edu.ph<br>
+                 BSIT Program: bsit@ascot.edu.ph</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <div class="info-icon">⏰</div>
+            <div class="info-content">
+              <h4>Office Hours</h4>
+              <p>Monday to Friday: 8:00 AM - 5:00 PM<br>
+                 Saturday: 8:00 AM - 12:00 PM<br>
+                 Sunday: Closed</p>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px;">
+          <h4 style="color: var(--brand); margin-bottom: 12px; font-size: 16px;">Quick Links</h4>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="about.html" class="btn outline" style="text-decoration: none;">Program Details</a>
+            <a href="enrollment.php" class="btn outline" style="text-decoration: none;">Start Enrollment</a>
+            <a href="index.html" class="btn outline" style="text-decoration: none;">Home Page</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div style="display:flex; gap:12px; align-items:center;">
+      <img src="images/ascot-logo.png" alt="ASCOT" style="height:42px; width:auto; border-radius:6px; opacity:0.95;" onerror="this.style.display='none'">
+      <div>
+        <div style="font-weight:700;">Aurora State College of Technology</div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.85);">Bachelor of Science in Information Technology</div>
+      </div>
+    </div>
+
+    <div style="text-align:right; font-size:13px;">
+      <div>© 2025 ASCOT — Student Enrollment System</div>
+      <div style="color:rgba(255,255,255,0.8); margin-top:6px;">Privacy • Terms • Support</div>
+    </div>
+  </footer>
+</body>
+</html>

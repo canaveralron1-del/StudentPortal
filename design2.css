@@ -1,0 +1,117 @@
+/* Standardized Banner Sizes */
+.hero-banner,
+.enrollment-hero,
+.contact-hero,
+.messages-hero {
+    background: linear-gradient(rgba(15,23,36,0.85), rgba(15,23,36,0.75)), url('ascot.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 14px;
+    padding: 50px 40px;
+    color: white;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 24px var(--shadow);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* For index.html - update the existing banner class */
+.banner .left {
+    min-height: 320px; /* Make similar to other banners */
+    background-image: url('ascot.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Standard Kicker for all pages */
+.kicker,
+.enrollment-hero .kicker,
+.contact-hero .kicker,
+.messages-hero .kicker {
+    background: linear-gradient(90deg,var(--accent), #38bdf8);
+    color:white;
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.2px;
+    box-shadow: 0 6px 18px rgba(14,165,164,0.2);
+    width:fit-content;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+/* Standard Headers for all pages */
+.hero-banner h2,
+.enrollment-hero h2,
+.contact-hero h2,
+.messages-hero h2 {
+    font-size: 36px;
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+/* Standard Paragraph for all pages */
+.hero-banner p,
+.enrollment-hero p,
+.contact-hero p,
+.messages-hero p {
+    font-size: 18px;
+    opacity:0.9;
+    max-width:700px;
+    line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-banner,
+    .enrollment-hero,
+    .contact-hero,
+    .messages-hero,
+    .banner .left {
+        padding: 40px 24px;
+        min-height: 280px;
+    }
+    
+    .hero-banner h2,
+    .enrollment-hero h2,
+    .contact-hero h2,
+    .messages-hero h2 {
+        font-size: 28px;
+    }
+    
+    .hero-banner p,
+    .enrollment-hero p,
+    .contact-hero p,
+    .messages-hero p {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-banner,
+    .enrollment-hero,
+    .contact-hero,
+    .messages-hero,
+    .banner .left {
+        padding: 30px 20px;
+        min-height: 250px;
+    }
+    
+    .hero-banner h2,
+    .enrollment-hero h2,
+    .contact-hero h2,
+    .messages-hero h2 {
+        font-size: 24px;
+    }
+    
+    .hero-banner p,
+    .enrollment-hero p,
+    .contact-hero p,
+    .messages-hero p {
+        font-size: 15px;
+    }
+}

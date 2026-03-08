@@ -1,0 +1,769 @@
+<?php
+session_start();
+// Redirect to login if not logged in
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: StudentLogin.php");
+    exit();
+}
+
+// Get user info from database
+$conn = new mysqli("localhost", "root", "", "kurt");
+$username = $_SESSION['username'];
+
+// Query to get student info
+$user_sql = "SELECT First_Name, Middle_Name, Last_Name, Student_ID FROM student WHERE UserName = ?";
+$user_stmt = $conn->prepare($user_sql);
+$user_stmt->bind_param("s", $username);
+$user_stmt->execute();
+$user_result = $user_stmt->get_result();
+$user_data = $user_result->fetch_assoc();
+
+// Pre-fill data if available
+$prefilled_name = '';
+$prefilled_student_id = '';
+$prefilled_email = '';
+
+if ($user_data) {
+    // Full name
+    $first_name = trim($user_data['First_Name']);
+    $middle_name = trim($user_data['Middle_Name']);
+    $last_name = trim($user_data['Last_Name']);
+    
+    if (!empty($first_name) && !empty($last_name)) {
+        $prefilled_name = $first_name;
+        if (!empty($middle_name)) {
+            $prefilled_name .= ' ' . substr($middle_name, 0, 1) . '.';
+        }
+        $prefilled_name .= ' ' . $last_name;
+    }
+    
+    // Student ID
+    if (!empty($user_data['Student_ID'])) {
+        $prefilled_student_id = $user_data['Student_ID'];
+    }
+    
+    // Try to get email from enrollments table first (most recent)
+    $email_sql = "SELECT email FROM enrollments WHERE username = ? ORDER BY created_at DESC LIMIT 1";
+    $email_stmt = $conn->prepare($email_sql);
+    $email_stmt->bind_param("s", $username);
+    $email_stmt->execute();
+    $email_result = $email_stmt->get_result();
+    if ($email_row = $email_result->fetch_assoc()) {
+        $prefilled_email = $email_row['email'];
+    }
+}
+
+// If no email found anywhere, use default format
+if (empty($prefilled_email) && !empty($username)) {
+    $prefilled_email = $username . "@ascot.edu.ph";
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Enrollment — ASCOT BSIT Portal</title>
+  <link rel="stylesheet" href="design2.css">
+  <style>
+    /* Reset-ish */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root{
+      --brand:#0f1724;        /* dark navy */
+      --accent:#0ea5a4;       /* teal */
+      --muted:#6b7280;        /* gray */
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.6);
+      --border: rgba(15,23,36,0.04);
+      --shadow: rgba(12,18,30,0.06);
+    }
+    body {
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#f3f6f9 0%, #eef2f6 100%);
+      color: #0b1220;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+    }
+
+    /* NAV */
+    header.site-header {
+      background: var(--brand);
+      color: white;
+      padding: 12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand img { height:42px; width:auto; border-radius:6px; }
+    .brand h1 { font-size:18px; letter-spacing:0.2px; margin:0; }
+    nav.primary { display:flex; gap:10px; align-items:center; }
+    nav.primary a {
+      color:white; text-decoration:none; padding:8px 12px; border-radius:8px; font-size:14px;
+      opacity:0.95;
+      transition: background-color 0.2s;
+    }
+    nav.primary a:hover { background: rgba(255,255,255,0.06); }
+    nav.primary a.active { background: rgba(255,255,255,0.06); }
+
+    /* Main layout */
+    main.container {
+      max-width:1200px;
+      margin:28px auto;
+      padding:0 18px;
+    }
+
+    /* Enrollment Hero */
+    .enrollment-hero {
+      background: linear-gradient(rgba(15,23,36,0.85), rgba(15,23,36,0.75)), url('ascot.jpg');
+      background-size: cover;
+      background-position: center;
+      border-radius: 14px;
+      padding: 40px 32px;
+      color: white;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .enrollment-hero .kicker {
+      background: linear-gradient(90deg,var(--accent), #38bdf8);
+      color:white;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:600;
+      letter-spacing:0.2px;
+      box-shadow: 0 6px 18px rgba(14,165,164,0.2);
+      width:fit-content;
+      margin-bottom: 16px;
+    }
+    .enrollment-hero h2 { font-size:32px; margin-bottom:12px; }
+    .enrollment-hero p { font-size:16px; opacity:0.9; max-width:700px; }
+
+    /* Form Container */
+    .form-container {
+      background: white;
+      border-radius: 14px;
+      padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .form-title {
+      color: var(--brand);
+      font-size: 22px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(14,165,164,0.1);
+    }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--brand);
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-label.required:after {
+      content: " *";
+      color: #ef4444;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      background: white;
+      transition: all 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(14,165,164,0.1);
+    }
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230f1724' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    /* Subjects Selection */
+    .subjects-section {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid rgba(14,165,164,0.1);
+    }
+    .subjects-title {
+      color: var(--brand);
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .subject-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .subject-checkbox:hover {
+      border-color: var(--accent);
+      background: rgba(14,165,164,0.02);
+    }
+    .subject-checkbox input[type="checkbox"] {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+    .subject-checkbox label {
+      cursor: pointer;
+      color: var(--brand);
+      font-size: 14px;
+      flex-grow: 1;
+    }
+    .hidden {
+      display: none;
+    }
+
+    /* Form Steps */
+    .form-steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      counter-reset: step;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .step:before {
+      counter-increment: step;
+      content: counter(step);
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: var(--muted);
+      display: block;
+      margin: 0 auto 8px;
+      font-weight: 600;
+    }
+    .step.active:before {
+      background: var(--accent);
+      color: white;
+    }
+    .step-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .step.active .step-label {
+      color: var(--brand);
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      text-decoration:none;
+      padding:12px 20px;
+      border-radius:10px;
+      font-weight:600;
+      font-size:14px;
+      border:1px solid rgba(15,23,36,0.06);
+      transition: all 0.2s;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn.primary { 
+      background:var(--brand); 
+      color:white; 
+      box-shadow: 0 8px 18px rgba(15,23,36,0.06); 
+    }
+    .btn.primary:hover {
+      background: #1a2436;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15,23,36,0.1);
+    }
+    .btn.outline { 
+      background:transparent; 
+      color:var(--brand); 
+      border:1px solid rgba(15,23,36,0.08); 
+    }
+    .btn.outline:hover {
+      background: rgba(15,23,36,0.02);
+    }
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Info Cards */
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .info-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    .info-card h4 {
+      color: var(--brand);
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .info-card p {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+
+    /* Student Welcome */
+    .student-welcome {
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+      color: white;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .student-welcome h3 {
+      font-size: 16px;
+      margin: 0;
+    }
+    .student-welcome .logout-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .student-welcome .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Footer */
+    footer.site-footer {
+      margin-top:28px; 
+      padding:20px; 
+      background:var(--brand); 
+      color:white; 
+      border-radius:10px;
+      max-width:1200px; 
+      margin-left:auto; 
+      margin-right:auto; 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center;
+    }
+
+    /* Responsive */
+    @media (max-width:1000px){
+      .form-grid { grid-template-columns: 1fr; }
+      .info-cards { grid-template-columns: repeat(2, 1fr); }
+      .subjects-grid { grid-template-columns: 1fr; }
+      footer.site-footer { flex-direction:column; gap:12px; text-align:center; }
+    }
+    @media (max-width:768px){
+      .info-cards { grid-template-columns: 1fr; }
+      .enrollment-hero h2 { font-size: 26px; }
+      .enrollment-hero { padding: 30px 20px; }
+      .form-container { padding: 24px; }
+    }
+    @media (max-width:560px){
+      header.site-header { flex-direction: column; align-items: flex-start; }
+      nav.primary { width: 100%; margin-top: 10px; }
+      .form-steps { flex-direction: column; gap: 16px; }
+      .form-actions { flex-direction: column; }
+    }
+  </style>
+  
+  <script>
+    function loadSemesters() {
+      const year = document.getElementById('year').value;
+      const semSelect = document.getElementById('semester');
+      semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+
+      if (year === "1") {
+        semSelect.innerHTML += '<option value="1">1st Semester</option>';
+        semSelect.innerHTML += '<option value="2">2nd Semester</option>';
+      } else if (year === "2") {
+        semSelect.innerHTML += '<option value="1">1st Semester</option>';
+        semSelect.innerHTML += '<option value="2">2nd Semester</option>';
+      } else if (year === "3") {
+        semSelect.innerHTML += '<option value="1">1st Semester</option>';
+        semSelect.innerHTML += '<option value="2">2nd Semester</option>';
+      } else if(year === "mid"){
+        semSelect.innerHTML += '<option value="1">Mid Year</option>';
+      } else if(year === "4") {
+        semSelect.innerHTML += '<option value="1">1st Semester</option>';
+        semSelect.innerHTML += '<option value="2">2nd Semester</option>';
+      }
+
+      document.getElementById('subjects-section').classList.add('hidden');
+    }
+
+    function loadSubjects() {
+      const year = document.getElementById('year').value;
+      const sem = document.getElementById('semester').value;
+      const container = document.getElementById('subjects-list');
+      const section = document.getElementById('subjects-section');
+      
+      section.classList.remove('hidden');
+      container.innerHTML = "";
+
+      const subjects = {
+        "1-1": [
+          "Productivity Application",
+          "Programming for Beginners",
+          "Introduction to Computing",
+          "Programming 1",
+          "Understanding the Self",
+          "Mathematics in the Modern World",
+          "Purposive Communication",
+          "Fundamentals of Database Systems",
+          "NSTP 1",
+          "PathFit 1"
+        ],
+        "1-2": [
+          "Basic Computer Assembly",
+          "Programming 2",
+          "Data Structures and Algorithm",
+          "KomFil",
+          "The Contemporary World",
+          "Art Appreciation",
+          "Introduction to IT Systems",
+          "NSTP 2",
+          "PathFit 2"
+        ],
+        "2-1": [
+          "Information Management",
+          "Desktop Publishing",
+          "Science, Technology and Society",
+          "Ethics",
+          "Life and Works of Rizal",
+          "Web and Multimedia Systems",
+          "Networking 1",
+          "PathFit 3"
+        ],
+        "2-2": [
+          "Application Development and Emerging Technologies",
+          "Filipino sa Iba't Ibang Disiplina",
+          "Philippine Pop Culture",
+          "Human-Computer Interaction",
+          "Discrete Mathematics",
+          "Networking 2",
+          "PathFit 4",
+          "Introduction to Visual Design"
+        ],
+        "3-1": [
+          "Information Assurance and Security",
+          "Agile Programming",
+          "Current Trends in IT",
+          "Quantitative Methods",
+          "Math & Statistics for IT",
+          "System Administration & Maintenance",
+          "Reading Visual Art"
+        ],
+        "3-2": [
+          "IT Business Ventures",
+          "Technical and Professional Communication",
+          "People and the Earth Ecosystem",
+          "Web Systems and Technology",
+          "Interactive Programming Technologies",
+          "Object-Oriented Programming",
+          "Open Source Computing",
+          "Platform Technologies"
+        ],
+        "mid-1": [
+          "Big Data",
+          "Capstone Project and Research 1",
+        ],
+        "4-1": [
+          "Mobile and Wireless Computing",
+          "Game Development",
+          "Cybersecurity",
+          "English for IT",
+          "Capstone Project and Research 2",
+          "Social and Professional Issues in IT"
+        ],
+        "4-2": [
+          "Practicum",
+        ],
+      };
+      
+      const key = `${year}-${sem}`;
+      
+      if (subjects[key]) {
+        subjects[key].forEach(sub => {
+          const checkboxDiv = document.createElement('div');
+          checkboxDiv.className = 'subject-checkbox';
+          checkboxDiv.innerHTML = `
+    <input type='checkbox' name='subjects[]' value='${sub}' id='sub-${sub.replace(/\s+/g, '-')}'>
+    <label for='sub-${sub.replace(/\s+/g, '-')}'>${sub}</label>
+`;
+          container.appendChild(checkboxDiv);
+        });
+      }
+    }
+
+    // Form validation
+    function validateForm() {
+      const requiredFields = document.querySelectorAll('[required]');
+      let isValid = true;
+      
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          field.style.borderColor = '#ef4444';
+          isValid = false;
+        } else {
+          field.style.borderColor = '';
+        }
+      });
+      
+      return isValid;
+    }
+  </script>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="brand">
+      <img src="ascot3.png" alt="ASCOT logo" onerror="this.style.display='none'">
+      <div>
+        <h1 style="font-size:16px;">ASCOT — BSIT Enrollment Portal</h1>
+        <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:3px;">Aurora State College of Technology</div>
+      </div>
+    </div>
+
+    <nav class="primary" role="navigation" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="enrollment.php" class="active">Enroll</a>
+      <a href="about.html">Programs</a>
+      <a href="contact.html">Contact</a>
+      <a href="messages.html">Messages</a>
+      <a href="profile.php">My Profile</a>
+      <a href="logIn.html" class="active">Log Out</a>
+    </nav>
+  </header>
+
+  <main class="container" role="main">
+    <!-- Student Welcome Message -->
+  <!--<!?php if (!empty($_SESSION['username'])): ?>
+    <div class="student-welcome">
+      <h3>Welcome, <!?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES); ?>!</h3>
+      <form action="logout.php" method="POST" style="margin: 0;">
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+    </div>
+    <!?php endif; ?>
+
+    <!-- Enrollment Hero -->
+    <section class="enrollment-hero" aria-label="Enrollment Introduction">
+      <h2>BSIT Program Enrollment</h2>
+      <p>Complete the form below to enroll in the Bachelor of Science in Information Technology program. Please ensure all information is accurate before submission.</p>
+    </section>
+
+    <!-- Enrollment Form -->
+    <div class="form-container">
+      <h2 class="form-title">Enrollment Application Form</h2>
+      
+      <form action="submit.php" method="POST" onsubmit="return validateForm()">
+        <!-- Hidden username field for logged-in users -->
+        <?php if (!empty($_SESSION['username'])): ?>
+        <input type="hidden" name="username" value="<?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES); ?>">
+        <?php endif; ?>
+
+        <div class="form-grid">
+          <!-- Personal Information -->
+          <div class="form-group full-width">
+            <h3 style="color: var(--brand); margin-bottom: 16px; font-size: 18px;">Personal Information</h3>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Full Name</label>
+            <input type="text" name="fullname" class="form-control" 
+                   placeholder="Enter your full name" required
+                   value="<?php echo htmlspecialchars($prefilled_name); ?>" />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Email Address</label>
+            <input type="email" name="email" class="form-control" 
+                   placeholder="example@email.com" required 
+                   value="<?php echo htmlspecialchars($prefilled_email, ENT_QUOTES); ?>" />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" name="phone" class="form-control" placeholder="+63 912 345 6789" />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Birth Date</label>
+            <input type="date" name="birthdate" class="form-control" />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" name="address" class="form-control" placeholder="Complete address" />
+          </div>
+          
+          <div class="form-group full-width">
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 24px 0;">
+          </div>
+
+          <!-- Academic Information -->
+          <div class="form-group full-width">
+            <h3 style="color: var(--brand); margin-bottom: 16px; font-size: 18px;">Academic Information</h3>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Year Level</label>
+            <select id="year" name="year" class="form-control form-select" onchange="loadSemesters()" required>
+              <option value="">-- Select Year --</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="mid">Mid Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Semester</label>
+            <select id="semester" name="semester" class="form-control form-select" onchange="loadSubjects()" required>
+              <option value="">-- Select Semester --</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+    <label class="form-label">Student ID<small style="color: var(--accent); font-size: 12px; margin-top: 4px;">(cannot be changed)
+        </small></label>
+    <input type="text" name="student_id" class="form-control" 
+           placeholder="Student ID" 
+           value="<?php echo htmlspecialchars($prefilled_student_id, ENT_QUOTES); ?>"
+           readonly <?php echo !empty($prefilled_student_id) ? 'style="background-color: #f0f9ff;"' : ''; ?> />
+    <?php if (!empty($prefilled_student_id)): ?>
+    <?php else: ?>
+        <small style="color: var(--muted); font-size: 12px; margin-top: 4px; display: block;">
+            Student ID will be assigned after your first enrollment is accepted
+        </small>
+    <?php endif; ?>
+</div>
+        </div>
+
+        <!-- Subjects Selection (Dynamic) -->
+        <div id="subjects-section" class="subjects-section hidden">
+          <h3 class="subjects-title">Select Subjects for this Semester</h3>
+          <div class="subjects-grid" id="subjects-list">
+            <!-- Subjects will be loaded here dynamically -->
+          </div>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="form-group full-width" style="margin-top: 20px;">
+          <div class="subject-checkbox" style="background: transparent; border: none;">
+            <input type="checkbox" name="terms" id="terms" required>
+            <label for="terms">I hereby certify that the information provided is true and correct. I agree to the terms and conditions of enrollment.</label>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn primary">
+            <span>Submit Enrollment</span>
+          </button>
+          <button type="reset" class="btn outline">
+            <span>Clear Form</span>
+          </button>
+          <a href="index.html" class="btn outline" style="text-decoration: none;">
+            <span>Cancel</span>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Information Cards -->
+    <div class="info-cards">
+      <div class="info-card">
+        <h4>What happens next?</h4>
+        <p>After submission, your application will be reviewed by the admissions office. You'll receive a confirmation email within 3-5 business days.</p>
+      </div>
+      
+      <div class="info-card">
+        <h4>Need help?</h4>
+        <p>Contact our admissions office at admissions@ascot.edu.ph or call (042) 123-4567 during office hours (8AM-5PM, Mon-Fri).</p>
+      </div>
+      
+      <div class="info-card">
+        <h4>Important Dates</h4>
+        <p>Enrollment Period: June 1-30, 2025<br>
+           Classes Start: August 4, 2025<br>
+           Late Enrollment: Until August 15, 2025</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div style="display:flex; gap:12px; align-items:center;">
+      <img src="images/ascot-logo.png" alt="ASCOT" style="height:42px; width:auto; border-radius:6px; opacity:0.95;" onerror="this.style.display='none'">
+      <div>
+        <div style="font-weight:700;">Aurora State College of Technology</div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.85);">Bachelor of Science in Information Technology</div>
+      </div>
+    </div>
+
+    <div style="text-align:right; font-size:13px;">
+      <div>© 2025 ASCOT — Student Enrollment System</div>
+      <div style="color:rgba(255,255,255,0.8); margin-top:6px;">Privacy • Terms • Support</div>
+    </div>
+  </footer>
+</body>
+</html>

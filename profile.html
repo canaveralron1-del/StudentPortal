@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Profile — ASCOT BSIT Enrollment</title>
+
+  <style>
+    /* Consistent with your existing design */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root{
+      --brand:#0f1724;        /* dark navy */
+      --accent:#0ea5a4;       /* teal */
+      --muted:#6b7280;        /* gray */
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.6);
+      --success:#10b981;
+      --warning:#f59e0b;
+    }
+    body {
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#f3f6f9 0%, #eef2f6 100%);
+      color: #0b1220;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      min-height: 100vh;
+    }
+
+    /* HEADER - Consistent with home page */
+    header.site-header {
+      background: var(--brand);
+      color: white;
+      padding: 12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand img { height:42px; width:auto; border-radius:6px; }
+    .brand h1 { font-size:18px; letter-spacing:0.2px; margin:0; }
+    nav.primary { display:flex; gap:10px; align-items:center; }
+    nav.primary a {
+      color:white; text-decoration:none; padding:8px 12px; border-radius:8px; font-size:14px;
+      opacity:0.95;
+    }
+    nav.primary a:hover { background: rgba(255,255,255,0.06); }
+    nav.primary a.active { background: rgba(255,255,255,0.12); font-weight: 600; }
+
+    /* Main container */
+    main.container {
+      max-width:1200px;
+      margin:28px auto;
+      padding:0 18px;
+    }
+
+    /* Profile Header */
+    .profile-header {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(12,18,30,0.06);
+      margin-bottom: 28px;
+      border: 1px solid rgba(15,23,36,0.04);
+    }
+    
+    .profile-banner {
+      height: 140px;
+      background: linear-gradient(135deg, var(--brand) 0%, #1e293b 100%);
+      position: relative;
+    }
+    
+    .profile-avatar {
+      position: absolute;
+      bottom: -40px;
+      left: 40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .avatar-initials {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #38bdf8);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: 700;
+    }
+    
+    .profile-info {
+      padding: 60px 40px 30px;
+    }
+    
+    .profile-info-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .profile-name h1 {
+      font-size: 28px;
+      color: var(--brand);
+      margin-bottom: 6px;
+    }
+    
+    .profile-name p {
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    
+    .profile-status {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    
+    .status-active {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--success);
+    }
+    
+    .status-pending {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--warning);
+    }
+    
+    .btn {
+      display:inline-flex; gap:10px; align-items:center; text-decoration:none;
+      padding:10px 14px; border-radius:10px; font-weight:600; font-size:14px;
+      border:1px solid rgba(15,23,36,0.06);
+      cursor: pointer;
+    }
+    
+    .btn.primary { 
+      background:var(--brand); color:white; box-shadow: 0 8px 18px rgba(15,23,36,0.06); 
+    }
+    
+    .btn.outline { 
+      background:transparent; color:var(--brand); border:1px solid rgba(15,23,36,0.08); 
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      transition: transform 0.2s ease;
+    }
+    
+    /* Profile Content Grid */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .profile-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(15,23,36,0.04);
+      box-shadow: 0 6px 18px rgba(9,15,25,0.04);
+    }
+    
+    .profile-card h2 {
+      color: var(--brand);
+      font-size: 18px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(15,23,36,0.06);
+    }
+    
+    /* Information Rows */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(15,23,36,0.04);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    
+    .info-value {
+      color: var(--brand);
+      font-weight: 600;
+      text-align: right;
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+      margin-top: 20px;
+    }
+    
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: rgba(15,23,36,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+      border-radius: 4px;
+      width: 65%;
+    }
+    
+    /* Courses List */
+    .courses-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .course-item {
+      padding: 14px;
+      margin-bottom: 10px;
+      background: rgba(15,23,36,0.02);
+      border-radius: 8px;
+      border-left: 4px solid var(--accent);
+    }
+    
+    .course-code {
+      font-weight: 700;
+      color: var(--brand);
+    }
+    
+    .course-name {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 25px;
+    }
+    
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid rgba(15,23,36,0.04);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--brand);
+      margin-bottom: 6px;
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    /* Footer */
+    footer.site-footer {
+      margin-top:28px; padding:20px; background:var(--brand); color:white; border-radius:10px;
+      max-width:1200px; margin-left:auto; margin-right:auto; display:flex; justify-content:space-between; align-items:center;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .profile-info-top {
+        flex-direction: column;
+      }
+      
+      .profile-avatar {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -60px;
+      }
+      
+      .profile-info {
+        padding-top: 80px;
+        text-align: center;
+      }
+      
+      .profile-status {
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .brand h1 {
+        font-size: 16px;
+      }
+      
+      nav.primary {
+        gap: 6px;
+      }
+      
+      nav.primary a {
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER / NAV -->
+  <header class="site-header" role="banner">
+    <div class="brand">
+      <img src="ascot3.png" alt="ASCOT logo" onerror="this.style.display='none'">
+      <div>
+        <h1 style="font-size:16px;">ASCOT — BSIT Enrollment Portal</h1>
+        <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:3px;">Aurora State College of Technology</div>
+      </div>
+    </div>
+
+    <nav class="primary" role="navigation" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="enrollment.php">Enroll</a>
+      <a href="about.html">Programs</a>
+      <a href="contact.html">Contact</a>
+      <a href="messages.html">Messages</a>
+      <a href="profile.html" class="active">My Profile</a>
+    </nav>
+  </header>
+
+  <main class="container" role="main">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-banner"></div>
+      <div class="profile-avatar">
+        <div class="avatar-initials" id="userInitials">JS</div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-info-top">
+          <div class="profile-name">
+            <h1 id="userName">Jamie Santos</h1>
+            <p id="userProgram">BSIT - 3rd Year</p>
+            <p id="userId">Student ID: ASCOT-2023-01427</p>
+          </div>
+          <div class="profile-status">
+            <span class="status-badge status-active">Active Student</span>
+            <button class="btn outline" id="editProfileBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="gpaStat">3.72</div>
+        <div class="stat-label">Current GPA</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="creditsStat">78/120</div>
+        <div class="stat-label">Credits Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="enrollmentStat">Active</div>
+        <div class="stat-label">Enrollment Status</div>
+      </div>
+    </div>
+
+    <!-- Profile Content Grid -->
+    <div class="profile-grid">
+      <!-- Personal Information -->
+      <div class="profile-card">
+        <h2>Personal Information</h2>
+        <div class="info-row">
+          <span class="info-label">Full Name</span>
+          <span class="info-value" id="infoFullName">Jamie R. Santos</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date of Birth</span>
+          <span class="info-value" id="infoDob">May 15, 2002</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value" id="infoEmail">j.santos@ascot.edu.ph</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Phone</span>
+          <span class="info-value" id="infoPhone">(+63) 912 345 6789</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Address</span>
+          <span class="info-value" id="infoAddress">Baler, Aurora, Philippines</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Enrollment Date</span>
+          <span class="info-value" id="infoEnrollDate">August 2023</span>
+        </div>
+      </div>
+
+      <!-- Academic Information -->
+      <div class="profile-card">
+        <h2>Academic Information</h2>
+        <div class="info-row">
+          <span class="info-label">Program</span>
+          <span class="info-value">BS Information Technology</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Year Level</span>
+          <span class="info-value">3rd Year</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Academic Standing</span>
+          <span class="info-value">Good Standing</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Advisor</span>
+          <span class="info-value">Prof. Maria Dela Cruz</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Expected Graduation</span>
+          <span class="info-value">May 2025</span>
+        </div>
+        
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>Degree Progress</span>
+            <span id="progressPercent">65%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Semester Courses -->
+      <div class="profile-card">
+        <h2>Current Semester (1st Sem 2024-2025)</h2>
+        <ul class="courses-list">
+          <li class="course-item">
+            <div class="course-code">IT 301 - Data Structures & Algorithms</div>
+            <div class="course-name">Prof. Juan Dela Cruz • Units: 3</div>
+          </li>
+          <li class="course-item">
+            <div class="course-code">IT 315 - Database Management Systems</div>
+            <div class="course-name">Prof. Maria Santos • Units: 3</div>
+          </li>
+          <li class="course-item">
+            <div class="course-code">IT 320 - Web Development</div>
+            <div class="course-name">Prof. Carlos Reyes • Units: 3</div>
+          </li>
+          <li class="course-item">
+            <div class="course-code">IT 325 - Network Security</div>
+            <div class="course-name">Prof. Ana Lim • Units: 3</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Account & Settings -->
+      <div class="profile-card">
+        <h2>Account & Settings</h2>
+        <div class="info-row">
+          <span class="info-label">Password Last Changed</span>
+          <span class="info-value">January 15, 2025</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email Notifications</span>
+          <span class="info-value">Enabled</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Two-Factor Authentication</span>
+          <span class="info-value">Not Enabled</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Portal Language</span>
+          <span class="info-value">English</span>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn outline" id="changePasswordBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Change Password
+          </button>
+          <button class="btn outline" id="downloadRecordsBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download Records
+          </button>
+          <button class="btn primary" id="viewEnrollmentBtn">View Enrollment</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div style="display:flex; gap:12px; align-items:center;">
+      <img src="images/ascot-logo.png" alt="ASCOT" style="height:42px; width:auto; border-radius:6px; opacity:0.95;" onerror="this.style.display='none'">
+      <div>
+        <div style="font-weight:700;">Aurora State College of Technology</div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.85);">Bachelor of Science in Information Technology</div>
+      </div>
+    </div>
+
+    <div style="text-align:right; font-size:13px;">
+      <div>© 2025 ASCOT — Student Enrollment System</div>
+      <div style="color:rgba(255,255,255,0.8); margin-top:6px;">Privacy • Terms • Support</div>
+    </div>
+  </footer>
+
+  <script>
+    // Interactive functionality for the profile page
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // Edit Profile Button
+      document.getElementById('editProfileBtn').addEventListener('click', function() {
+        alert('Edit profile form would open here.\nIn a real implementation, this would show a modal with editable fields.');
+      });
+      
+      // Change Password Button
+      document.getElementById('changePasswordBtn').addEventListener('click', function() {
+        alert('Password change modal would appear here.');
+      });
+      
+      // Download Records Button
+      document.getElementById('downloadRecordsBtn').addEventListener('click', function() {
+        alert('Your academic records are being prepared for download.');
+        // Simulate download
+        setTimeout(() => {
+          alert('Your records have been downloaded as "ASCOT-Academic-Record-2025.pdf"');
+        }, 1000);
+      });
+      
+      // View Enrollment Button
+      document.getElementById('viewEnrollmentBtn').addEventListener('click', function() {
+        window.location.href = 'enrollment.php';
+      });
+      
+      // Simulate dynamic data (in real app, this would come from API)
+      function simulateLiveData() {
+        // Update progress bar width based on credits
+        const credits = 78;
+        const totalCredits = 120;
+        const percent = Math.round((credits / totalCredits) * 100);
+        
+        document.getElementById('progressPercent').textContent = percent + '%';
+        document.getElementById('progressFill').style.width = percent + '%';
+        
+        // Update GPA with slight variation (simulation)
+        const baseGPA = 3.72;
+        const variation = (Math.random() * 0.05) - 0.025; // +/- 0.025
+        const currentGPA = (baseGPA + variation).toFixed(2);
+        document.getElementById('gpaStat').textContent = currentGPA;
+      }
+      
+      // Initialize and update data every 30 seconds
+      simulateLiveData();
+      setInterval(simulateLiveData, 30000);
+      
+      // User initials from name
+      function updateUserInitials() {
+        const name = document.getElementById('userName').textContent;
+        const initials = name.split(' ').map(n => n[0]).join('');
+        document.getElementById('userInitials').textContent = initials;
+      }
+      
+      updateUserInitials();
+    });
+  </script>
+</body>
+</html>
